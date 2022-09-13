@@ -1,0 +1,1 @@
+INSERT INTO "todos" ('id', 'content') values ('1', '초기화 된 할 일 입니다.');
