@@ -11,8 +11,8 @@ import java.util.*
 
 @SpringBootTest
 @Transactional
-internal class TodoRepositoryTest  @Autowired constructor(
-    private var todoRepository: CrudRepository<Todo, UUID>
+internal class TodoRepositoryTest (
+    @Autowired private val todoRepository: CrudRepository<Todo, UUID>
     ) {
 
     /*
@@ -57,7 +57,7 @@ internal class TodoRepositoryTest  @Autowired constructor(
         val randomUuid = UUID.randomUUID()
 //		when
 //		then
-        Assertions.assertThat(todoRepository.findById(randomUuid)).isEqualTo(null)
+        Assertions.assertThat(todoRepository.findById(randomUuid)).isEqualTo(Optional.empty<Todo>())
     }
 
     @Test
@@ -81,7 +81,7 @@ internal class TodoRepositoryTest  @Autowired constructor(
         todoRepository.save(Todo(UUID.randomUUID(),"첫번째 할일 입니다."))
         todoRepository.save(Todo(UUID.randomUUID(),"두번째 할일 입니다."))
 //		when
-        Assertions.assertThat(todoRepository.findById(UUID.randomUUID())).isEqualTo(null)
+        Assertions.assertThat(todoRepository.findById(UUID.randomUUID())).isEqualTo(Optional.empty<Todo>())
 //		then
     }
 
@@ -97,7 +97,7 @@ internal class TodoRepositoryTest  @Autowired constructor(
 //		when
         todoRepository.deleteById(targetUUID)
 //		then
-        Assertions.assertThat(todoRepository.findById(targetUUID)).isEqualTo(null)
+        Assertions.assertThat(todoRepository.findById(targetUUID)).isEqualTo(Optional.empty<Todo>())
 
     }
 
