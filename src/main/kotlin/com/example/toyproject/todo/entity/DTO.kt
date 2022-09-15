@@ -3,7 +3,7 @@ package com.example.toyproject.todo.entity
 import java.util.UUID
 
 data class DTO(
-    var id: UUID?,
+    var id: UUID? = null,
     var content: String
 )
 

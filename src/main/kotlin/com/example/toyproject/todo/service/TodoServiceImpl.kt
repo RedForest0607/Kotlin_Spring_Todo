@@ -7,6 +7,7 @@ import com.example.toyproject.todo.entity.toEntity
 import com.example.toyproject.todo.exception.BaseResponseCode
 import com.example.toyproject.todo.exception.CustomException
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.jpa.domain.AbstractPersistable_.id
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -33,13 +34,13 @@ class TodoServiceImpl(
 
     }
 
-    override fun getTodo(id: UUID): Todo? {
-        return todoRepository.findByIdOrNull(id)
+    override fun getTodo(id: UUID): DTO? {
+        return todoRepository.findByIdOrNull(id)?.toDTO() ?: throw CustomException(BaseResponseCode.TODO_NOT_FOUND)
     }
 
-    override fun editTodo(id: UUID, content: String): Todo {
-        if (todoRepository.findById(id).isPresent) {
-            return todoRepository.save(Todo(id, content))
+    override fun editTodo(DTO: DTO): DTO {
+        if (todoRepository.findById(DTO.id!!).isPresent) {
+            return todoRepository.save(DTO.toEntity()).toDTO()
         } else {
             throw IndexOutOfBoundsException()  //오류 처리
         }

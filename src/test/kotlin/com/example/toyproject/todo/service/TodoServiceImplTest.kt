@@ -3,70 +3,59 @@ package com.example.toyproject.todo.service
 import com.example.toyproject.todo.entity.DTO
 import com.example.toyproject.todo.entity.Todo
 import com.example.toyproject.todo.entity.toDTO
+import com.example.toyproject.todo.exception.BaseResponseCode
+import com.example.toyproject.todo.exception.CustomException
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.AfterContainer
+import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
+import io.mockk.*
+import io.mockk.MockKAnnotations.init
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.CrudRepository
 import java.util.*
+import kotlin.reflect.typeOf
 
-@SpringBootTest
+@AnnotationSpec.Test
 class TodoServiceImplTest constructor(
-    val todoRepository: CrudRepository<Todo, UUID>,
-    val todoService: TodoService = TodoServiceImpl(todoRepository)
+    private val todoRepository: CrudRepository<Todo, UUID> = mockk(),
+    private val todoService: TodoService = TodoServiceImpl(todoRepository),
 ): BehaviorSpec({
 
-    given("createTodo") {
-        `when`("todo를 생성하는 경우"){
-            todoService.createTodo(DTO(null,"새로운 Todo 입니다."))
-            todoService.createTodo(DTO(null,"새로운 Todo 입니다."))
-            todoService.createTodo(DTO(null,"새로운 Todo 입니다."))
-            then("새로운 todo가 생성된다"){
-                val result: Todo? = todoService.getTodos().find { todo: Todo -> todo.content == "새로운 Todo 입니다." }
-                result?.content.shouldBe("새로운 Todo 입니다.")
+    afterContainer {
+        clearAllMocks()
+    }
+
+    val testDTO = DTO(null, "TEST")
+    val targetUUID: UUID = UUID.randomUUID()
+
+    Given("save 테스트"){
+        every { todoRepository.save(any()) } returns mockk()
+        `when`("save 호출했을 때"){
+            todoService.createTodo(testDTO)
+            then("Repository까지 잘 작동했는지 평가"){
+                verify { todoRepository.save(any()) }
             }
         }
     }
-
-    given("deleteTodo") {
-        val todo: Todo = todoService.createTodo(DTO(null,"삭제해야 할 Todo 입니다."))
-        `when`("todo를 삭제하는 경우"){
-            todoService.deleteTodo(todo.id!!)
-            then("Todo가 삭제됩니다.") {
+    Given("Todo가 이미 존재하는 상황에서"){
+        every { todoRepository.findById(any()) } returns Optional.of(Todo(targetUUID,"FIND"))
+        `when`("todo를 검색 한다면,") {
+            val resultDTO: DTO? = todoService.getTodo(targetUUID)
+            then("해당하는 Todo가 나와야 한다.") {
+                resultDTO?.content shouldBe  "FIND"
             }
         }
     }
-
-    given("getTodos") {
-        val todo: Todo = todoService.createTodo(DTO(null,"찾아야할 Todo 입니다."))
-        val targetUUID: UUID = todo.id!!
-        `when`("Todos를 불러온 경우") {
-            val todos: MutableIterable<Todo> = todoService.getTodos()
-            then("Todo의 내용이 동일해야한다."){
-                todos.contains(Todo(targetUUID,"찾아야할 Todo 입니다."))
+    Given("Todo가 존재하지 않는 상황에서는") {
+        every { todoRepository.findById(any()) } returns Optional.empty()
+        `when` ("todo를 검색 한다면, ") {
+            val e = shouldThrow<CustomException> {
+                todoService.getTodo(targetUUID)
             }
-        }
-    }
-
-    given("getTodo") {
-        val todo: Todo = todoService.createTodo(DTO(null,"찾아야할 Todo 입니다."))
-        val targetUUID: UUID = todo.id!!
-        todoService.createTodo(todo.toDTO())
-        `when`("Todo를 서치한 경우") {
-            val foundTodo: Todo? = todoService.getTodo(targetUUID)
-            then("Todo의 내용이 객체와 동일해야한다.") {
-            }
-        }
-    }
-
-    given("editTodo") {
-        todoService.deleteAll()
-        val todo: Todo = todoService.createTodo(DTO(null,"수정해야할 Todo 입니다."))
-        val targetUUID: UUID = todo.id!!
-        todoService.createTodo(todo.toDTO())
-        `when`("Todo를 수정한 경우"){
-            todoService.editTodo(targetUUID,"수정된 내용입니다.")
-            then("Todo의 내용이 수정된 내용이어야 한다.") {
-                val resultTodo: Todo? = todoService.getTodo(targetUUID)
+            then("Exception이 터져야 한다.") {
+                e.baseResponseCode shouldBe BaseResponseCode.TODO_NOT_FOUND
             }
         }
     }

@@ -15,6 +15,7 @@ import java.util.*
 internal class TodoRepositoryTest  @Autowired constructor(
     private var todoRepository: CrudRepository<Todo, UUID>
     ) {
+
     @BeforeAll
     fun setUp() {
         println(">>테스트 시작")
@@ -64,9 +65,7 @@ internal class TodoRepositoryTest  @Autowired constructor(
         val randomUuid = UUID.randomUUID()
 //		when
 //		then
-        assertThrows(IndexOutOfBoundsException::class.java ){
-            todoRepository.findById(randomUuid)
-        }
+        Assertions.assertThat(todoRepository.findById(randomUuid)).isEqualTo(null)
     }
 
     @Test
@@ -90,9 +89,7 @@ internal class TodoRepositoryTest  @Autowired constructor(
         todoRepository.save(Todo(UUID.randomUUID(),"첫번째 할일 입니다."))
         todoRepository.save(Todo(UUID.randomUUID(),"두번째 할일 입니다."))
 //		when
-        assertThrows(IndexOutOfBoundsException::class.java ) {
-            val todoResult: Optional<Todo> = todoRepository.findById(UUID.randomUUID())
-        }
+        Assertions.assertThat(todoRepository.findById(UUID.randomUUID())).isEqualTo(null)
 //		then
     }
 
@@ -108,18 +105,8 @@ internal class TodoRepositoryTest  @Autowired constructor(
 //		when
         todoRepository.deleteById(targetUUID)
 //		then
-        assertThrows(IndexOutOfBoundsException::class.java){todoRepository.findById(UUID.randomUUID())}
+        Assertions.assertThat(todoRepository.findById(targetUUID)).isEqualTo(null)
 
-    }
-
-    @Test
-    @DisplayName("Todo 삭제 실패 테스트 - todo가 없는 경우")
-    fun deleteTodoWithNoTodos() {
-//		given
-//		when
-
-//		then
-        assertThrows(IndexOutOfBoundsException::class.java){todoRepository.deleteById(UUID.randomUUID())}
     }
 
     /*
@@ -136,14 +123,7 @@ internal class TodoRepositoryTest  @Autowired constructor(
 //		then
         Assertions.assertThat(todoRepository.findById(targetUUID).get().content).isEqualTo("수정된 todo입니다.")
     }
-    @Test
-    @DisplayName("Todo 수정 테스트")
-    fun editTodoOutOfIndex(){
-//      given
-//		when
-//		then
-        assertThrows(IndexOutOfBoundsException::class.java){todoRepository.save(Todo(UUID.randomUUID(),"수정할 todo가 없습니다."))}
-    }
+
 
     /*
         UTIL

@@ -34,15 +34,15 @@ class TodoController @Autowired constructor(val todoService: TodoService) {
 
     @ApiOperation(value = "Todo 가져오기")
     @GetMapping("/{id}")
-    fun getTodo(@ApiParam(value = "Todo id")@PathVariable("id")id: UUID): Todo? {
+    fun getTodo(@ApiParam(value = "Todo id")@PathVariable("id")id: UUID): DTO? {
         return todoService.getTodo(id) ?: throw CustomException(BaseResponseCode.TODO_NOT_FOUND)
     }
 
     @ApiOperation(value = "Todo 수정하기")
     @PutMapping("/{id}")
     fun putTodo(@ApiParam(value = "수정할 Todo id") @PathVariable("id")id: UUID,
-                @ApiParam(value = "수정할Todo 내용") @RequestBody content: String): Todo {
-        return todoService.editTodo(id, content)
+                @ApiParam(value = "수정할Todo 내용") @RequestBody content: String): DTO {
+        return todoService.editTodo(DTO(id, content))
     }
 
     @ApiOperation(value = "Todo 삭제하기")
