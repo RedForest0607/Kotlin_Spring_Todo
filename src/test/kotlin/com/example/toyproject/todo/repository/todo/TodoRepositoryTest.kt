@@ -3,7 +3,6 @@ package com.example.toyproject.todo.repository.todo
 import com.example.toyproject.todo.entity.Todo
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.repository.CrudRepository
@@ -15,13 +14,6 @@ import java.util.*
 internal class TodoRepositoryTest  @Autowired constructor(
     private var todoRepository: CrudRepository<Todo, UUID>
     ) {
-
-    @BeforeAll
-    fun setUp() {
-        println(">>테스트 시작")
-    }
-
-
 
     /*
         POST
