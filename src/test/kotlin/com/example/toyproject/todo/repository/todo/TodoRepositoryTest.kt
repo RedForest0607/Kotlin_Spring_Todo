@@ -1,6 +1,7 @@
 package com.example.toyproject.todo.repository.todo
 
 import com.example.toyproject.todo.entity.Todo
+import io.mockk.mockk
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired

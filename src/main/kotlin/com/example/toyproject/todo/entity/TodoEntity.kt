@@ -5,12 +5,12 @@ import javax.persistence.*
 
 
 @Entity
-@Table(name = "TODOS")
 class Todo(
     @Id
     @Column(columnDefinition = "Binary(16)")
     val id: UUID? = null,
 
+    @Column(nullable = false, length = 100)
     val content: String
 )
 
